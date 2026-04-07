@@ -3,6 +3,7 @@ import { WithDropdownPropertiesPicker } from './util.js'
 import type {
 	CompanionInputFieldCheckbox,
 	CompanionInputFieldNumber,
+	CompanionInputFieldTextInput,
 	CompanionInputFieldDropdown,
 	CompanionInputFieldMultiDropdown,
 } from '@companion-module/base'
@@ -107,8 +108,12 @@ export function AtemDisplayClockPropertiesPickers(): {
 
 export function AtemDisplayClockTimePickers(): {
 	hours: CompanionInputFieldNumber<'hours'>
+	hoursVar: CompanionInputFieldTextInput<'hoursVar'>
 	minutes: CompanionInputFieldNumber<'minutes'>
+	minutesVar: CompanionInputFieldTextInput<'minutesVar'>
 	seconds: CompanionInputFieldNumber<'seconds'>
+	secondsVar: CompanionInputFieldTextInput<'secondsVar'>
+	useVariable: CompanionInputFieldCheckbox<'useVariable'>
 } {
 	return {
 		hours: {
@@ -122,6 +127,15 @@ export function AtemDisplayClockTimePickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
+			isVisibleExpression: `$(options:useVariable) != true`,
+		},
+		hoursVar: {
+			type: 'textinput',
+			id: 'hoursVar',
+			label: 'Hours',
+			default: '',
+			useVariables: true,
+			isVisibleExpression: `$(options:useVariable) == true`,
 		},
 		minutes: {
 			type: 'number',
@@ -134,6 +148,15 @@ export function AtemDisplayClockTimePickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
+			isVisibleExpression: `$(options:useVariable) != true`,
+		},
+		minutesVar: {
+			type: 'textinput',
+			id: 'minutesVar',
+			label: 'Minutes',
+			default: '',
+			useVariables: true,
+			isVisibleExpression: `$(options:useVariable) == true`,
 		},
 		seconds: {
 			type: 'number',
@@ -146,14 +169,33 @@ export function AtemDisplayClockTimePickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
+			isVisibleExpression: `$(options:useVariable) != true`,
+		},
+		secondsVar: {
+			type: 'textinput',
+			id: 'secondsVar',
+			label: 'Seconds',
+			default: '',
+			useVariables: true,
+			isVisibleExpression: `$(options:useVariable) == true`,
+		},
+		useVariable: {
+			type: 'checkbox',
+			id: 'useVariable',
+			label: 'Use Variable',
+			default: false,
 		},
 	}
 }
 
 export function AtemDisplayClockTimeOffsetPickers(): {
 	hours: CompanionInputFieldNumber<'hours'>
+	hoursVar: CompanionInputFieldTextInput<'hoursVar'>
 	minutes: CompanionInputFieldNumber<'minutes'>
+	minutesVar: CompanionInputFieldTextInput<'minutesVar'>
 	seconds: CompanionInputFieldNumber<'seconds'>
+	secondsVar: CompanionInputFieldTextInput<'secondsVar'>
+	useVariable: CompanionInputFieldCheckbox<'useVariable'>
 } {
 	return {
 		hours: {
@@ -167,6 +209,15 @@ export function AtemDisplayClockTimeOffsetPickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
+			isVisibleExpression: `$(options:useVariable) != true`,
+		},
+		hoursVar: {
+			type: 'textinput',
+			id: 'hoursVar',
+			label: 'Hours',
+			default: '',
+			useVariables: true,
+			isVisibleExpression: `$(options:useVariable) == true`,
 		},
 		minutes: {
 			type: 'number',
@@ -179,6 +230,15 @@ export function AtemDisplayClockTimeOffsetPickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
+			isVisibleExpression: `$(options:useVariable) != true`,
+		},
+		minutesVar: {
+			type: 'textinput',
+			id: 'minutesVar',
+			label: 'Minutes',
+			default: '',
+			useVariables: true,
+			isVisibleExpression: `$(options:useVariable) == true`,
 		},
 		seconds: {
 			type: 'number',
@@ -191,6 +251,21 @@ export function AtemDisplayClockTimeOffsetPickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
+			isVisibleExpression: `$(options:useVariable) != true`,
+		},
+		secondsVar: {
+			type: 'textinput',
+			id: 'secondsVar',
+			label: 'Seconds',
+			default: '',
+			useVariables: true,
+			isVisibleExpression: `$(options:useVariable) == true`,
+		},
+		useVariable: {
+			type: 'checkbox',
+			id: 'useVariable',
+			label: 'Use Variable',
+			default: false,
 		},
 	}
 }

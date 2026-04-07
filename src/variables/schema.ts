@@ -147,4 +147,11 @@ export type VariablesSchema = {
 
 	timecode?: string
 	display_clock?: string
+	display_clock_hh?: string
+	display_clock_mm?: string
+	display_clock_ss?: string
+	display_clock_configured?: string
+	display_clock_configured_hh?: string
+	display_clock_configured_mm?: string
+	display_clock_configured_ss?: string
 }

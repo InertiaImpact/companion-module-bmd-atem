@@ -14,7 +14,6 @@ import {
 	type StateWrapper,
 } from '../state.js'
 import { assertUnreachable, CLASSIC_AUDIO_MIN_GAIN, type InstanceBaseExt } from '../util.js'
-import type { CompanionVariableDefinitions } from '@companion-module/base'
 import { initCameraControlVariables, updateCameraControlVariables } from './cameraControl.js'
 import { createEmptyState } from '@atem-connection/camera-control'
 import { updateTimecodeVariables } from './timecode.js'
@@ -26,6 +25,12 @@ import {
 } from './audioRouting.js'
 import type { VariablesSchema } from './schema.js'
 import { formatAudioRoutingAsString } from '../options/fairlight-routing.js'
+
+type CompanionVariableDefinitions<T extends Record<string, any>> = {
+	[K in keyof T]?: {
+		name: string
+	}
+}
 
 function getSourcePresetName(instance: InstanceBaseExt, state: AtemState, id: number): string {
 	const input = state.inputs[id]
@@ -45,6 +50,7 @@ export interface UpdateVariablesProps {
 	meProgram: Set<number>
 	mePreview: Set<number>
 	transitionPosition: Set<number>
+	timecode: boolean
 	auxes: Set<number>
 	dsk: Set<number>
 	usk: Set<[me: number, key: number]>
@@ -72,6 +78,7 @@ export function updateChangedVariables(
 	for (const meIndex of changes.meProgram) updateMEProgramVariable(instance, state, meIndex, newValues)
 	for (const meIndex of changes.mePreview) updateMEPreviewVariable(instance, state, meIndex, newValues)
 	for (const meIndex of changes.transitionPosition) updateMETransitionPositionVariable(state, meIndex, newValues)
+	if (changes.timecode) updateTimecodeVariables(instance, state, newValues)
 
 	for (const auxIndex of changes.auxes) updateAuxVariable(instance, state, auxIndex, newValues)
 	for (const dsk of changes.dsk) updateDSKVariable(instance, state, dsk, newValues)
@@ -898,9 +905,35 @@ export function InitVariables(instance: InstanceBaseExt, model: ModelSpec, state
 		variables[`display_clock`] = {
 			name: `Display Clock`,
 		}
+		variables[`display_clock_hh`] = {
+			name: `Display Clock Current Hours`,
+		}
+		variables[`display_clock_mm`] = {
+			name: `Display Clock Current Minutes`,
+		}
+		variables[`display_clock_ss`] = {
+			name: `Display Clock Current Seconds`,
+		}
+		variables[`display_clock_configured`] = {
+			name: `Display Clock Configured Time`,
+		}
+		variables[`display_clock_configured_hh`] = {
+			name: `Display Clock Configured Hours`,
+		}
+		variables[`display_clock_configured_mm`] = {
+			name: `Display Clock Configured Minutes`,
+		}
+		variables[`display_clock_configured_ss`] = {
+			name: `Display Clock Configured Seconds`,
+		}
 		updateTimecodeVariables(instance, state.state, values)
 	}
 
-	instance.setVariableDefinitions(variables)
+	instance.setVariableDefinitions(
+		Object.entries(variables).map(([variableId, def]) => ({
+			variableId,
+			name: def?.name ?? variableId,
+		})),
+	)
 	instance.setVariableValues(values)
 }
