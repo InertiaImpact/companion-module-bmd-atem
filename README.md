@@ -45,6 +45,11 @@ Make sure to backup your config before updating to this version!
 - Mini Extreme ISO G2 audio channel labelling
 - Allow disabling status text for media pool previews
 - Media clip player control
+- Add display clock configured variables, including `hh/mm/ss` components
+- Add variables for display clock configure properties (display, size, opacity, x/y, auto hide, mode)
+- Add display clock mode state variable (`up`/`down`/`time`)
+- Add actions to set display clock start time from `HH:MM:SS` and to set hours/minutes/seconds individually
+- Support variable-capable display clock time inputs while preserving compatibility with existing saved actions
 
 ## v3.21.0
 
