@@ -32,6 +32,14 @@ To add a new model to the list:
 
 ## Changes
 
+## v4.1.0
+
+- Add display clock current value variables split into `hh/mm/ss` components
+- Add display clock configured value variables split into `hh/mm/ss` components
+- Add display clock configure property variables (display, size, opacity, x, y, auto hide, mode and mode id)
+- Add display clock actions for start time and offset with expression-capable numeric fields
+- Add optional combined variable mode for start time and offset (`HH:MM:SS` and `+/-HH:MM:SS`)
+
 ## v4.0.0
 
 Make sure to backup your config before updating to this version!

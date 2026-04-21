@@ -274,6 +274,7 @@ export default class AtemInstance extends InstanceBase<AtemSchema> {
 			meProgram: new Set(),
 			mePreview: new Set(),
 			transitionPosition: new Set(),
+			timecode: false,
 			auxes: new Set(),
 			dsk: new Set(),
 			usk: new Set(),
@@ -526,6 +527,11 @@ export default class AtemInstance extends InstanceBase<AtemSchema> {
 			}
 			if (path.match(/settings.timeMode/)) {
 				changedFeedbacks.add('timecodeMode')
+				continue
+			}
+
+			if (path.match(/displayClock/)) {
+				changedVariables.timecode = true
 				continue
 			}
 		}

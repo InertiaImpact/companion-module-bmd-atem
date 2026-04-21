@@ -147,4 +147,19 @@ export type VariablesSchema = {
 
 	timecode?: string
 	display_clock?: string
+	display_clock_hh?: string
+	display_clock_mm?: string
+	display_clock_ss?: string
+	display_clock_configured?: string
+	display_clock_configured_hh?: string
+	display_clock_configured_mm?: string
+	display_clock_configured_ss?: string
+	display_clock_configured_display?: boolean
+	display_clock_configured_size?: number
+	display_clock_configured_opacity?: number
+	display_clock_configured_x?: number
+	display_clock_configured_y?: number
+	display_clock_configured_auto_hide?: boolean
+	display_clock_configured_mode?: 'down' | 'up' | 'time' | ''
+	display_clock_configured_mode_id?: number | ''
 }
