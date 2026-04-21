@@ -1,5 +1,5 @@
 import { Enums, type Atem, type DisplayClock } from 'atem-connection'
-import type { CompanionActionContext, CompanionActionDefinitions, CompanionOptionValues } from '@companion-module/base'
+import type { CompanionActionDefinitions } from '@companion-module/base'
 import { convertOptionsFields } from '../options/util.js'
 import {
 	AtemDisplayClockPropertiesPickers,
@@ -31,44 +31,20 @@ export type AtemDisplayClockActions = {
 	}
 	[ActionId.DisplayClockStartTime]: {
 		options: {
+			useCombinedVariable: boolean
+			combinedVar: string
 			hours: number
-			hoursVar: string
 			minutes: number
-			minutesVar: string
 			seconds: number
-			secondsVar: string
-			useVariable: boolean
 		}
 	}
 	[ActionId.DisplayClockOffsetStartTime]: {
 		options: {
+			useCombinedVariable: boolean
+			combinedVar: string
 			hours: number
-			hoursVar: string
 			minutes: number
-			minutesVar: string
 			seconds: number
-			secondsVar: string
-			useVariable: boolean
-		}
-	}
-	[ActionId.DisplayClockStartTimeHms]: {
-		options: {
-			time: string
-		}
-	}
-	[ActionId.DisplayClockSetStartHours]: {
-		options: {
-			hours: string
-		}
-	}
-	[ActionId.DisplayClockSetStartMinutes]: {
-		options: {
-			minutes: string
-		}
-	}
-	[ActionId.DisplayClockSetStartSeconds]: {
-		options: {
-			seconds: string
 		}
 	}
 }
@@ -77,64 +53,60 @@ function clamp(min: number, max: number, value: number): number {
 	return Math.min(max, Math.max(min, Math.floor(value)))
 }
 
-function getCurrentDisplayClockStartTime(state: StateWrapper): DisplayClock.DisplayClockTime {
-	const clockState = state.state.displayClock?.properties?.startFrom
-	if (clockState) {
-		return {
-			hours: clockState.hours,
-			minutes: clockState.minutes,
-			seconds: clockState.seconds,
-			frames: 0,
-		}
-	}
-
-	return {
-		hours: 0,
-		minutes: 0,
-		seconds: 0,
-		frames: 0,
-	}
-}
-
-function parseDisplayClockHms(rawTime: string): DisplayClock.DisplayClockTime {
-	const parts = rawTime
-		.trim()
-		.split(':')
-		.map((part) => Number(part.trim()))
-
-	if (parts.length !== 3 || parts.some((part) => isNaN(part))) {
-		throw new Error(`Invalid time '${rawTime}'. Expected HH:MM:SS`)
-	}
-
-	return {
-		hours: clamp(0, 23, parts[0]),
-		minutes: clamp(0, 59, parts[1]),
-		seconds: clamp(0, 59, parts[2]),
-		frames: 0,
-	}
-}
-
-async function parseNumberField(context: CompanionActionContext, value: unknown, label: string): Promise<number> {
-	const parsed = await context.parseVariablesInString(String(value ?? ''))
-	const num = Number(parsed)
+async function parseNumberField(options: any, field: string, label: string): Promise<number> {
+	const num = await options.getParsedNumber(field)
 	if (isNaN(num)) {
-		throw new Error(`Invalid numeric value for ${label}: ${parsed}`)
+		throw new Error(`Invalid numeric value for ${label}: ${num}`)
 	}
 	return num
 }
 
-async function getTimeValue(
-	context: CompanionActionContext,
-	options: CompanionOptionValues,
-	field: 'hours' | 'minutes' | 'seconds',
-): Promise<number> {
-	if (options.useVariable) {
-		return parseNumberField(context, options[`${field}Var`], field)
+async function parseStringField(options: any, field: string): Promise<string> {
+	if (typeof options.getParsedString === 'function') {
+		return String(await options.getParsedString(field))
 	}
 
-	const raw = options[field]
+	const raw = typeof options.getRaw === 'function' ? options.getRaw(field) : options[field]
+	return raw === undefined || raw === null ? '' : String(raw)
+}
+
+function parseCombinedStartTime(value: string): Pick<DisplayClock.DisplayClockTime, 'hours' | 'minutes' | 'seconds'> {
+	const match = value.trim().match(/^(\d+):(\d+):(\d+)$/)
+	if (!match) {
+		throw new Error(`Invalid time '${value}'. Expected HH:MM:SS`)
+	}
+
+	return {
+		hours: clamp(0, 23, Number(match[1])),
+		minutes: clamp(0, 59, Number(match[2])),
+		seconds: clamp(0, 59, Number(match[3])),
+	}
+}
+
+function parseCombinedOffsetSeconds(value: string): number {
+	const trimmed = value.trim()
+
+	const signedMatch = trimmed.match(/^([+-])?(\d+):(\d+):(\d+)$/)
+	if (signedMatch) {
+		const sign = signedMatch[1] === '-' ? -1 : 1
+		const hours = clamp(0, 23, Number(signedMatch[2]))
+		const minutes = clamp(0, 59, Number(signedMatch[3]))
+		const seconds = clamp(0, 59, Number(signedMatch[4]))
+		return sign * (hours * 3600 + minutes * 60 + seconds)
+	}
+
+	const parts = trimmed.split(':').map((part) => Number(part.trim()))
+	if (parts.length !== 3 || parts.some((part) => isNaN(part))) {
+		throw new Error(`Invalid offset '${value}'. Expected +/-HH:MM:SS`)
+	}
+
+	return clamp(-23, 23, parts[0]) * 3600 + clamp(-59, 59, parts[1]) * 60 + clamp(-59, 59, parts[2])
+}
+
+async function getTimeValue(options: any, field: 'hours' | 'minutes' | 'seconds'): Promise<number> {
+	const raw = options.getRaw(field)
 	if (typeof raw === 'number') return raw
-	if (raw !== undefined && raw !== null && raw !== '') return parseNumberField(context, raw, field)
+	if (raw !== undefined && raw !== null && raw !== '') return parseNumberField(options, field, field)
 
 	return 0
 }
@@ -143,23 +115,19 @@ export function createDisplayClockActions(
 	atem: Atem | undefined,
 	model: ModelSpec,
 	state: StateWrapper,
-): CompanionActionDefinitions {
+): CompanionActionDefinitions<AtemDisplayClockActions> {
 	if (!model.displayClock) {
 		return {
 			[ActionId.DisplayClockState]: undefined,
 			[ActionId.DisplayClockConfigure]: undefined,
 			[ActionId.DisplayClockStartTime]: undefined,
 			[ActionId.DisplayClockOffsetStartTime]: undefined,
-			[ActionId.DisplayClockStartTimeHms]: undefined,
-			[ActionId.DisplayClockSetStartHours]: undefined,
-			[ActionId.DisplayClockSetStartMinutes]: undefined,
-			[ActionId.DisplayClockSetStartSeconds]: undefined,
 		}
 	}
 	return {
 		[ActionId.DisplayClockState]: {
 			name: 'Display Clock: Start/Stop',
-			options: convertOptionsFields<any, any>({
+			options: convertOptionsFields({
 				state: {
 					id: 'state',
 					label: 'State',
@@ -174,7 +142,7 @@ export function createDisplayClockActions(
 					disableAutoExpression: true,
 				},
 			}),
-			callback: async ({ options }: any) => {
+			callback: async ({ options }) => {
 				let newState: Enums.DisplayClockClockState | undefined
 				const rawState = options.state
 				switch (rawState) {
@@ -201,7 +169,7 @@ export function createDisplayClockActions(
 			options: convertOptionsFields({
 				...AtemDisplayClockPropertiesPickers(),
 			}),
-			callback: async ({ options }: any) => {
+			callback: async ({ options }) => {
 				const newProps: Partial<DisplayClock.DisplayClockProperties> = {}
 
 				const props = options.properties
@@ -241,10 +209,21 @@ export function createDisplayClockActions(
 		[ActionId.DisplayClockStartTime]: {
 			name: 'Display Clock: Set Start Time',
 			options: convertOptionsFields({ ...AtemDisplayClockTimePickers() }),
-			callback: async ({ options }: any, context: CompanionActionContext) => {
-				const hours = clamp(0, 23, await getTimeValue(context, options, 'hours'))
-				const minutes = clamp(0, 59, await getTimeValue(context, options, 'minutes'))
-				const seconds = clamp(0, 59, await getTimeValue(context, options, 'seconds'))
+			callback: async ({ options }) => {
+				let hours: number
+				let minutes: number
+				let seconds: number
+
+				if (options.useCombinedVariable === true) {
+					const combined = parseCombinedStartTime(await parseStringField(options, 'combinedVar'))
+					hours = combined.hours
+					minutes = combined.minutes
+					seconds = combined.seconds
+				} else {
+					hours = clamp(0, 23, await getTimeValue(options, 'hours'))
+					minutes = clamp(0, 59, await getTimeValue(options, 'minutes'))
+					seconds = clamp(0, 59, await getTimeValue(options, 'seconds'))
+				}
 
 				const time: DisplayClock.DisplayClockTime = {
 					hours,
@@ -272,14 +251,16 @@ export function createDisplayClockActions(
 		[ActionId.DisplayClockOffsetStartTime]: {
 			name: 'Display Clock: Offset Start Time',
 			options: convertOptionsFields({ ...AtemDisplayClockTimeOffsetPickers() }),
-			callback: async ({ options }: any, context: CompanionActionContext) => {
+			callback: async ({ options }) => {
 				const clockState = state.state.displayClock?.properties?.startFrom
 				const currentTime = clockState ? clockState.hours * 3600 + clockState.minutes * 60 + clockState.seconds : 0
 
 				const offset =
-					clamp(-23, 23, await getTimeValue(context, options, 'hours')) * 3600 +
-					clamp(-59, 59, await getTimeValue(context, options, 'minutes')) * 60 +
-					clamp(-59, 59, await getTimeValue(context, options, 'seconds'))
+					options.useCombinedVariable === true
+						? parseCombinedOffsetSeconds(await parseStringField(options, 'combinedVar'))
+						: clamp(-23, 23, await getTimeValue(options, 'hours')) * 3600 +
+							clamp(-59, 59, await getTimeValue(options, 'minutes')) * 60 +
+							clamp(-59, 59, await getTimeValue(options, 'seconds'))
 
 				let newTime = currentTime + offset
 
@@ -296,97 +277,6 @@ export function createDisplayClockActions(
 
 				await atem?.setDisplayClockProperties({
 					startFrom: time,
-				})
-			},
-		},
-		[ActionId.DisplayClockStartTimeHms]: {
-			name: 'Display Clock: Set Start Time (HH:MM:SS)',
-			options: convertOptionsFields<any, any>({
-				time: {
-					type: 'textinput',
-					id: 'time',
-					label: 'Time (HH:MM:SS)',
-					default: '00:00:00',
-					useVariables: true,
-				},
-			}),
-			callback: async ({ options }: any, context: CompanionActionContext) => {
-				const rawTime = await context.parseVariablesInString(String(options.time ?? ''))
-				const time = parseDisplayClockHms(rawTime)
-
-				await atem?.setDisplayClockProperties({
-					startFrom: time,
-				})
-			},
-			learn: () => {
-				const displayClockConfig = state.state.displayClock?.properties
-				if (displayClockConfig) {
-					return {
-						time: `${displayClockConfig.startFrom.hours.toString().padStart(2, '0')}:${displayClockConfig.startFrom.minutes
-							.toString()
-							.padStart(2, '0')}:${displayClockConfig.startFrom.seconds.toString().padStart(2, '0')}`,
-					}
-				}
-				return undefined
-			},
-		},
-		[ActionId.DisplayClockSetStartHours]: {
-			name: 'Display Clock: Set Start Hours',
-			options: convertOptionsFields<any, any>({
-				hours: {
-					type: 'textinput',
-					id: 'hours',
-					label: 'Hours',
-					default: '0',
-					useVariables: true,
-				},
-			}),
-			callback: async ({ options }: any, context: CompanionActionContext) => {
-				const current = getCurrentDisplayClockStartTime(state)
-				current.hours = clamp(0, 23, await parseNumberField(context, options.hours, 'hours'))
-
-				await atem?.setDisplayClockProperties({
-					startFrom: current,
-				})
-			},
-		},
-		[ActionId.DisplayClockSetStartMinutes]: {
-			name: 'Display Clock: Set Start Minutes',
-			options: convertOptionsFields<any, any>({
-				minutes: {
-					type: 'textinput',
-					id: 'minutes',
-					label: 'Minutes',
-					default: '0',
-					useVariables: true,
-				},
-			}),
-			callback: async ({ options }: any, context: CompanionActionContext) => {
-				const current = getCurrentDisplayClockStartTime(state)
-				current.minutes = clamp(0, 59, await parseNumberField(context, options.minutes, 'minutes'))
-
-				await atem?.setDisplayClockProperties({
-					startFrom: current,
-				})
-			},
-		},
-		[ActionId.DisplayClockSetStartSeconds]: {
-			name: 'Display Clock: Set Start Seconds',
-			options: convertOptionsFields<any, any>({
-				seconds: {
-					type: 'textinput',
-					id: 'seconds',
-					label: 'Seconds',
-					default: '0',
-					useVariables: true,
-				},
-			}),
-			callback: async ({ options }: any, context: CompanionActionContext) => {
-				const current = getCurrentDisplayClockStartTime(state)
-				current.seconds = clamp(0, 59, await parseNumberField(context, options.seconds, 'seconds'))
-
-				await atem?.setDisplayClockProperties({
-					startFrom: current,
 				})
 			},
 		},

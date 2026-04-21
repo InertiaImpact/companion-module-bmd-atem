@@ -108,12 +108,10 @@ export function AtemDisplayClockPropertiesPickers(): {
 
 export function AtemDisplayClockTimePickers(): {
 	hours: CompanionInputFieldNumber<'hours'>
-	hoursVar: CompanionInputFieldTextInput<'hoursVar'>
 	minutes: CompanionInputFieldNumber<'minutes'>
-	minutesVar: CompanionInputFieldTextInput<'minutesVar'>
 	seconds: CompanionInputFieldNumber<'seconds'>
-	secondsVar: CompanionInputFieldTextInput<'secondsVar'>
-	useVariable: CompanionInputFieldCheckbox<'useVariable'>
+	combinedVar: CompanionInputFieldTextInput<'combinedVar'>
+	useCombinedVariable: CompanionInputFieldCheckbox<'useCombinedVariable'>
 } {
 	return {
 		hours: {
@@ -127,15 +125,7 @@ export function AtemDisplayClockTimePickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
-			isVisibleExpression: `$(options:useVariable) != true`,
-		},
-		hoursVar: {
-			type: 'textinput',
-			id: 'hoursVar',
-			label: 'Hours',
-			default: '',
-			useVariables: true,
-			isVisibleExpression: `$(options:useVariable) == true`,
+			isVisibleExpression: `$(options:useCombinedVariable) != true`,
 		},
 		minutes: {
 			type: 'number',
@@ -148,15 +138,7 @@ export function AtemDisplayClockTimePickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
-			isVisibleExpression: `$(options:useVariable) != true`,
-		},
-		minutesVar: {
-			type: 'textinput',
-			id: 'minutesVar',
-			label: 'Minutes',
-			default: '',
-			useVariables: true,
-			isVisibleExpression: `$(options:useVariable) == true`,
+			isVisibleExpression: `$(options:useCombinedVariable) != true`,
 		},
 		seconds: {
 			type: 'number',
@@ -169,33 +151,32 @@ export function AtemDisplayClockTimePickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
-			isVisibleExpression: `$(options:useVariable) != true`,
+			isVisibleExpression: `$(options:useCombinedVariable) != true`,
 		},
-		secondsVar: {
+		combinedVar: {
 			type: 'textinput',
-			id: 'secondsVar',
-			label: 'Seconds',
-			default: '',
+			id: 'combinedVar',
+			label: 'Combined (HH:MM:SS)',
+			default: '00:00:00',
 			useVariables: true,
-			isVisibleExpression: `$(options:useVariable) == true`,
+			isVisibleExpression: `$(options:useCombinedVariable) == true`,
 		},
-		useVariable: {
+		useCombinedVariable: {
 			type: 'checkbox',
-			id: 'useVariable',
-			label: 'Use Variable',
+			id: 'useCombinedVariable',
+			label: 'Use combined variable (HH:MM:SS)',
 			default: false,
+			disableAutoExpression: true,
 		},
 	}
 }
 
 export function AtemDisplayClockTimeOffsetPickers(): {
 	hours: CompanionInputFieldNumber<'hours'>
-	hoursVar: CompanionInputFieldTextInput<'hoursVar'>
 	minutes: CompanionInputFieldNumber<'minutes'>
-	minutesVar: CompanionInputFieldTextInput<'minutesVar'>
 	seconds: CompanionInputFieldNumber<'seconds'>
-	secondsVar: CompanionInputFieldTextInput<'secondsVar'>
-	useVariable: CompanionInputFieldCheckbox<'useVariable'>
+	combinedVar: CompanionInputFieldTextInput<'combinedVar'>
+	useCombinedVariable: CompanionInputFieldCheckbox<'useCombinedVariable'>
 } {
 	return {
 		hours: {
@@ -209,15 +190,7 @@ export function AtemDisplayClockTimeOffsetPickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
-			isVisibleExpression: `$(options:useVariable) != true`,
-		},
-		hoursVar: {
-			type: 'textinput',
-			id: 'hoursVar',
-			label: 'Hours',
-			default: '',
-			useVariables: true,
-			isVisibleExpression: `$(options:useVariable) == true`,
+			isVisibleExpression: `$(options:useCombinedVariable) != true`,
 		},
 		minutes: {
 			type: 'number',
@@ -230,15 +203,7 @@ export function AtemDisplayClockTimeOffsetPickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
-			isVisibleExpression: `$(options:useVariable) != true`,
-		},
-		minutesVar: {
-			type: 'textinput',
-			id: 'minutesVar',
-			label: 'Minutes',
-			default: '',
-			useVariables: true,
-			isVisibleExpression: `$(options:useVariable) == true`,
+			isVisibleExpression: `$(options:useCombinedVariable) != true`,
 		},
 		seconds: {
 			type: 'number',
@@ -251,21 +216,22 @@ export function AtemDisplayClockTimeOffsetPickers(): {
 			step: 1,
 			asInteger: true,
 			clampValues: true,
-			isVisibleExpression: `$(options:useVariable) != true`,
+			isVisibleExpression: `$(options:useCombinedVariable) != true`,
 		},
-		secondsVar: {
+		combinedVar: {
 			type: 'textinput',
-			id: 'secondsVar',
-			label: 'Seconds',
-			default: '',
+			id: 'combinedVar',
+			label: 'Combined (+/-HH:MM:SS)',
+			default: '+00:00:00',
 			useVariables: true,
-			isVisibleExpression: `$(options:useVariable) == true`,
+			isVisibleExpression: `$(options:useCombinedVariable) == true`,
 		},
-		useVariable: {
+		useCombinedVariable: {
 			type: 'checkbox',
-			id: 'useVariable',
-			label: 'Use Variable',
+			id: 'useCombinedVariable',
+			label: 'Use combined variable (+/-HH:MM:SS)',
 			default: false,
+			disableAutoExpression: true,
 		},
 	}
 }

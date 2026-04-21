@@ -107,10 +107,6 @@ export enum ActionId {
 	DisplayClockConfigure = 'displayClockConfigure',
 	DisplayClockStartTime = 'displayClockStartTime',
 	DisplayClockOffsetStartTime = 'displayClockOffsetStartTime',
-	DisplayClockStartTimeHms = 'displayClockStartTimeHms',
-	DisplayClockSetStartHours = 'displayClockSetStartHours',
-	DisplayClockSetStartMinutes = 'displayClockSetStartMinutes',
-	DisplayClockSetStartSeconds = 'displayClockSetStartSeconds',
 	Timecode = 'timecode',
 	TimecodeMode = 'timecodeMode',
 

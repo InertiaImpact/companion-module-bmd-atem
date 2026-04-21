@@ -14,6 +14,7 @@ import {
 	type StateWrapper,
 } from '../state.js'
 import { assertUnreachable, CLASSIC_AUDIO_MIN_GAIN, type InstanceBaseExt } from '../util.js'
+import type { CompanionVariableDefinitions } from '@companion-module/base'
 import { initCameraControlVariables, updateCameraControlVariables } from './cameraControl.js'
 import { createEmptyState } from '@atem-connection/camera-control'
 import { updateTimecodeVariables } from './timecode.js'
@@ -25,12 +26,6 @@ import {
 } from './audioRouting.js'
 import type { VariablesSchema } from './schema.js'
 import { formatAudioRoutingAsString } from '../options/fairlight-routing.js'
-
-type CompanionVariableDefinitions<T extends Record<string, any>> = {
-	[K in keyof T]?: {
-		name: string
-	}
-}
 
 function getSourcePresetName(instance: InstanceBaseExt, state: AtemState, id: number): string {
 	const input = state.inputs[id]
@@ -953,11 +948,6 @@ export function InitVariables(instance: InstanceBaseExt, model: ModelSpec, state
 		updateTimecodeVariables(instance, state.state, values)
 	}
 
-	instance.setVariableDefinitions(
-		Object.entries(variables).map(([variableId, def]) => ({
-			variableId,
-			name: def?.name ?? variableId,
-		})),
-	)
+	instance.setVariableDefinitions(variables)
 	instance.setVariableValues(values)
 }

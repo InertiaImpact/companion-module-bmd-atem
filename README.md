@@ -32,7 +32,7 @@ To add a new model to the list:
 
 ## Changes
 
-## v4.0.0
+## v4.1.0
 
 Make sure to backup your config before updating to this version!
 
