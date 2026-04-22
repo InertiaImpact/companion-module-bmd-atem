@@ -34,11 +34,9 @@ To add a new model to the list:
 
 ## v4.1.0
 
-- Add display clock current value variables split into `hh/mm/ss` components
-- Add display clock configured value variables split into `hh/mm/ss` components
-- Add display clock configure property variables (display, size, opacity, x, y, auto hide, mode and mode id)
-- Add display clock actions for start time and offset with expression-capable numeric fields
-- Add optional combined variable mode for start time and offset (`HH:MM:SS` and `+/-HH:MM:SS`)
+- Add variables for the live display clock value currently on-screen (`display_clock`, `display_clock_hh/mm/ss`)
+- Add variables for the configured display clock start time (`display_clock_configured`, `display_clock_configured_hh/mm/ss`)
+- Add direct Set Start Time and Offset Start Time control using either per-field values or an optional combined variable (`HH:MM:SS` and `+/-HH:MM:SS`)
 
 ## v4.0.0
 

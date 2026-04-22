@@ -52,12 +52,6 @@ export function updateTimecodeVariables(
 	values['display_clock_configured_ss'] = startClockParts.ss
 
 	const displayClockProperties = state.displayClock?.properties
-	values['display_clock_configured_display'] = displayClockProperties?.enabled ?? false
-	values['display_clock_configured_size'] = (displayClockProperties?.size ?? 0) / 100
-	values['display_clock_configured_opacity'] = (displayClockProperties?.opacity ?? 0) / 100
-	values['display_clock_configured_x'] = (displayClockProperties?.positionX ?? 0) / 1000
-	values['display_clock_configured_y'] = (displayClockProperties?.positionY ?? 0) / 1000
-	values['display_clock_configured_auto_hide'] = displayClockProperties?.autoHide ?? false
 	values['display_clock_configured_mode_id'] = displayClockProperties?.clockMode ?? ''
 	values['display_clock_configured_mode'] = formatDisplayClockMode(displayClockProperties?.clockMode)
 }

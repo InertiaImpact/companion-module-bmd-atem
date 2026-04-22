@@ -921,24 +921,6 @@ export function InitVariables(instance: InstanceBaseExt, model: ModelSpec, state
 		variables[`display_clock_configured_ss`] = {
 			name: `Display Clock Configured Seconds`,
 		}
-		variables[`display_clock_configured_display`] = {
-			name: `Display Clock Configured Display`,
-		}
-		variables[`display_clock_configured_size`] = {
-			name: `Display Clock Configured Size`,
-		}
-		variables[`display_clock_configured_opacity`] = {
-			name: `Display Clock Configured Opacity`,
-		}
-		variables[`display_clock_configured_x`] = {
-			name: `Display Clock Configured X`,
-		}
-		variables[`display_clock_configured_y`] = {
-			name: `Display Clock Configured Y`,
-		}
-		variables[`display_clock_configured_auto_hide`] = {
-			name: `Display Clock Configured Auto Hide`,
-		}
 		variables[`display_clock_configured_mode`] = {
 			name: `Display Clock Configured Mode`,
 		}
