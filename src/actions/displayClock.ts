@@ -12,7 +12,7 @@ import type { StateWrapper } from '../state.js'
 export type AtemDisplayClockActions = {
 	['displayClockState']: {
 		options: {
-			state: 'toggle' | Enums.DisplayClockClockState
+			state: 'toggle' | 'resetAndStart' | Enums.DisplayClockClockState
 		}
 	}
 	['displayClockConfigure']: {
@@ -103,7 +103,7 @@ function parseCombinedOffsetSeconds(value: string): number {
 }
 
 async function getTimeValue(options: any, field: 'hours' | 'minutes' | 'seconds'): Promise<number> {
-	const raw = options.getRaw(field)
+	const raw = typeof options.getRaw === 'function' ? options.getRaw(field) : options[field]
 	if (typeof raw === 'number') return raw
 	if (raw !== undefined && raw !== null && raw !== '') return parseNumberField(options, field, field)
 
@@ -137,13 +137,21 @@ export function createDisplayClockActions(
 						{ id: Enums.DisplayClockClockState.Running, label: 'Start' },
 						{ id: Enums.DisplayClockClockState.Stopped, label: 'Stop' },
 						{ id: Enums.DisplayClockClockState.Reset, label: 'Reset' },
+						{ id: 'resetAndStart', label: 'Reset and Start' },
 					],
 					disableAutoExpression: true,
 				},
 			}),
 			callback: async ({ options }) => {
-				let newState: Enums.DisplayClockClockState | undefined
 				const rawState = options.state
+
+				if (rawState === 'resetAndStart') {
+					await atem?.setDisplayClockState(Enums.DisplayClockClockState.Reset)
+					await atem?.setDisplayClockState(Enums.DisplayClockClockState.Running)
+					return
+				}
+
+				let newState: Enums.DisplayClockClockState | undefined
 				switch (rawState) {
 					case 'toggle':
 						newState =

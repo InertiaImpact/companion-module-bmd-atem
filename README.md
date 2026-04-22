@@ -32,11 +32,13 @@ To add a new model to the list:
 
 ## Changes
 
-## v4.1.0
+## v4.1.1
 
 - Add variables for the live display clock value currently on-screen (`display_clock`, `display_clock_hh/mm/ss`)
 - Add variables for the configured display clock start time (`display_clock_configured`, `display_clock_configured_hh/mm/ss`)
 - Add direct Set Start Time and Offset Start Time control using either per-field values or an optional combined variable (`HH:MM:SS` and `+/-HH:MM:SS`)
+- Add "Reset and Start" option to Display Clock: Start/Stop action (resets then immediately starts, works regardless of current clock state)
+- Fix Display Clock time actions failing with `getRaw is not a function` in Companion API v2.0
 
 ## v4.0.0
 
